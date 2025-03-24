@@ -1,9 +1,9 @@
 FROM ensemblorg/ensembl-vep:release_113.4
 
-# samtools: for easy upgrade later. ARG variables only persist during image build
 ARG SAMTOOLSVER=1.14
 
-# samtools: install dependencies and clean up apt garbage
+USER root
+# install dependencies and clean up apt garbage
 RUN apt-get update && apt-get install --no-install-recommends -y \
  libncurses5-dev \
  libbz2-dev \
@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
  gawk && \
  apt-get autoclean && rm -rf /var/lib/apt/lists/*
 
-# samtools: install samtools, make /data
+# install samtools, make /data
 RUN wget https://github.com/samtools/samtools/releases/download/${SAMTOOLSVER}/samtools-${SAMTOOLSVER}.tar.bz2 && \
  tar -xjf samtools-${SAMTOOLSVER}.tar.bz2 && \
  rm samtools-${SAMTOOLSVER}.tar.bz2 && \
@@ -29,8 +29,9 @@ RUN wget https://github.com/samtools/samtools/releases/download/${SAMTOOLSVER}/s
  ./configure && \
  make && \
  make install && \
- mkdir /data
+ mkdir /work
 
-# samtools: set perl locale settings
+# set perl locale settings
 ENV LC_ALL=C
 
+WORKDIR /work
